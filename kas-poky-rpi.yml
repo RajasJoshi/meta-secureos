@@ -1,0 +1,110 @@
+header:
+  version: 8
+
+machine: raspberrypi4-64
+distro: poky
+target:
+  - secure-image
+
+repos:
+  meta-secureos:
+
+  poky:
+    url: https://git.yoctoproject.org/git/poky
+    path: layers/poky
+    branch: scarthgap
+    layers:
+      meta:
+      meta-poky:
+      meta-yocto-bsp:
+
+  meta-openembedded:
+    url: http://git.openembedded.org/meta-openembedded
+    path: layers/meta-openembedded
+    branch: scarthgap
+    layers:
+      meta-oe:
+      meta-python:
+      meta-networking:
+      meta-perl:
+
+  meta-raspberrypi:
+    url: https://github.com/agherzan/meta-raspberrypi
+    path: layers/meta-raspberrypi
+    branch: scarthgap
+
+  meta-secutity:
+    url: git://git.yoctoproject.org/meta-security
+    path: layers/meta-security
+    branch: scarthgap
+  
+  meta-selinux:
+    url: git://git.yoctoproject.org/meta-selinux
+    path: layers/meta-selinux
+    branch: scarthgap
+  
+  meta-wolfssl:
+    url: https://github.com/wolfSSL/meta-wolfssl
+    path: layers/meta-wolfssl
+    branch: master
+
+  meta-clang:
+    url: https://github.com/kraj/meta-clang.git
+    path: layers/meta-clang
+    branch: scarthgap
+
+
+bblayers_conf_header:
+  standard: |
+    POKY_BBLAYERS_CONF_VERSION = "2"
+    BBPATH = "${TOPDIR}"
+    BBFILES ?= ""
+
+local_conf_header:
+  rpi-specific: |
+    RPI_EXTRA_CONFIG = "dtoverlay=disable-bt"
+    LICENSE_FLAGS_ACCEPTED = "synaptics-killswitch"
+    PREFERRED_VERSION_linux-raspberrypi = "6.6.%"
+    ENABLE_DWC2_HOST = "1"
+    ENABLE_UART = "1"
+    RPI_USE_U_BOOT = "1"
+    DISABLE_SPLASH = "1"
+    BOOT_DELAY = "0"
+    BOOT_DELAY_MS = "0"
+  reduce_diskspace: |
+    INHERIT += "rm_work_and_downloads"
+  standard: |
+    CONF_VERSION = "2"
+    PACKAGE_CLASSES = "package_deb"
+    SDKMACHINE = "x86_64"
+    USER_CLASSES = "buildstats"
+    PATCHRESOLVE = "noop"
+    PARALLEL_MAKE = "-j 4"
+    BB_NUMBER_THREADS = "4"
+  debug-tweaks: |
+    EXTRA_IMAGE_FEATURES = "debug-tweaks"
+  distro-tweaks: |
+    DISTRO_FEATURES:remove = "pulseaudio bluetooth "
+    DISTRO_FEATURES:append = " security xattr systemd usrmerge ${DISTRO_FEATURES_LIBC} ipsec wifi "
+    DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
+    
+    IMAGE_INSTALL:append = " wolfssh wolfcrypt-py"
+    
+    PREFERRED_VERSION:audit = "4.0.2"
+
+    VIRTUAL-RUNTIME_init_manager = "systemd"
+    VIRTUAL-RUNTIME_initscripts = "systemd-compat-units"
+    VIRTUAL-RUNTIME_syslog = ""
+    VIRTUAL-RUNTIME_base-utils-syslog = ""
+    
+    PREFERRED_PROVIDER_virtual/refpolicy ?= "refpolicy-targeted" 
+  diskmon: |
+    BB_DISKMON_DIRS = "\
+        STOPTASKS,${TMPDIR},1G,100K \
+        STOPTASKS,${DL_DIR},1G,100K \
+        STOPTASKS,${SSTATE_DIR},1G,100K \
+        STOPTASKS,/tmp,100M,100K \
+        HALT,${TMPDIR},100M,1K \
+        HALT,${DL_DIR},100M,1K \
+        HALT,${SSTATE_DIR},100M,1K \
+        HALT,/tmp,10M,1K"
