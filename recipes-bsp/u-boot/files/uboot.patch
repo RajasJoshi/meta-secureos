@@ -1,0 +1,24 @@
+From c81ace552c4a00210596a20353c89827e8b3cdce Mon Sep 17 00:00:00 2001
+From: Rajas Joshi <rajasj99@gmail.com>
+Date: Wed, 18 Sep 2024 22:09:36 +0100
+Subject: [PATCH] secure changes
+Upstream-Status: Pending
+
+---
+ configs/rpi_arm64_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/rpi_arm64_defconfig b/configs/rpi_arm64_defconfig
+index f9dade18f6..a11d18c7f2 100644
+--- a/configs/rpi_arm64_defconfig
++++ b/configs/rpi_arm64_defconfig
+@@ -57,3 +57,5 @@ CONFIG_SYS_WHITE_ON_BLACK=y
+ CONFIG_VIDEO_BCM2835=y
+ CONFIG_CONSOLE_SCROLL_LINES=10
+ CONFIG_PHYS_TO_BUS=y
++CONFIG_ENV_IS_NOWHERE=y
++CONFIG_BOOTDELAY=-2
+\ No newline at end of file
+-- 
+2.34.1
+

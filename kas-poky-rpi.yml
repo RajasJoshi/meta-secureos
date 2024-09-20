@@ -72,7 +72,6 @@ local_conf_header:
     BOOT_DELAY = "0"
     BOOT_DELAY_MS = "0"
   reduce_diskspace: |
-    INHERIT += "rm_work_and_downloads"
   standard: |
     CONF_VERSION = "2"
     PACKAGE_CLASSES = "package_deb"
@@ -85,7 +84,7 @@ local_conf_header:
     EXTRA_IMAGE_FEATURES = "debug-tweaks"
   distro-tweaks: |
     DISTRO_FEATURES:remove = "pulseaudio bluetooth "
-    DISTRO_FEATURES:append = " security xattr systemd usrmerge ${DISTRO_FEATURES_LIBC} ipsec wifi "
+    DISTRO_FEATURES:append = " security xattr systemd usrmerge lkrg ${DISTRO_FEATURES_LIBC} ipsec wifi "
     DISTRO_FEATURES_BACKFILL_CONSIDERED += "sysvinit"
     
     IMAGE_INSTALL:append = " wolfssh wolfcrypt-py"
@@ -98,6 +97,14 @@ local_conf_header:
     VIRTUAL-RUNTIME_base-utils-syslog = ""
     
     PREFERRED_PROVIDER_virtual/refpolicy ?= "refpolicy-targeted" 
+  dm-verify: |
+        DISTRO_FEATURES:append = " integrity"
+        DM_VERITY_IMAGE = "secure-image"
+        DM_VERITY_IMAGE_TYPE = "ext4"
+        IMAGE_CLASSES += "dm-verity-img"
+        INITRAMFS_IMAGE_BUNDLE = "1"
+        INITRAMFS_IMAGE = "dm-verity-image-initramfs"
+        WKS_FILE = "secure-raspberrypi.wks"
   diskmon: |
     BB_DISKMON_DIRS = "\
         STOPTASKS,${TMPDIR},1G,100K \
